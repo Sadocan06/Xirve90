@@ -1,1 +1,54 @@
 :root{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#f3f8f2;background:#090e0d}*{box-sizing:border-box}body{margin:0}button,input{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible{outline:2px solid #b6ff38;outline-offset:2px}.app{max-width:700px;margin:auto;padding-bottom:100px}.hero{background:radial-gradient(circle at 85% 5%,#24462c,transparent 55%),#101a14;padding:28px 18px 20px;border-bottom:1px solid #2a3e2e}.top{display:flex;align-items:center;justify-content:space-between}.brand{font-size:30px;font-weight:1000;font-style:italic;letter-spacing:-1.8px}.brand span,.accent{color:#b6ff38}.actions{display:flex;gap:8px}.iconbtn{background:#1d2b22;color:#fff;border:1px solid #33483a;border-radius:12px;padding:10px 13px}.sub{color:#a3b7a8;font-size:12px;margin-top:17px;letter-spacing:1px}.hero h1{font-size:25px;line-height:1.15;margin:8px 0}.muted{color:#91a697;font-size:12px}.section{padding:18px 15px 0}.heading{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.heading h2{font-size:18px;margin:0}.dates,.chips,.tabs{display:flex;gap:8px;overflow-x:auto;padding-bottom:5px;scrollbar-width:none}.date,.chip,.tab{background:#17231b;border:1px solid #2b4030;color:#c3d3c6;border-radius:12px;padding:11px 13px;white-space:nowrap}.date{min-width:67px;text-align:center}.date strong{display:block;font-size:20px;margin:4px 0}.selected{background:#b6ff38!important;color:#14220e!important;border-color:#b6ff38!important}.search{width:100%;border-radius:12px;padding:13px;background:#17231b;border:1px solid #2d4233;color:white;margin-bottom:14px}.league{background:#141d17;border:1px solid #293c2e;border-radius:16px;overflow:hidden;margin-bottom:12px}.leaguehead{background:#1c2b21;padding:13px 14px;display:flex;align-items:center;justify-content:space-between;font-weight:800;font-size:13px}.match{display:flex;align-items:center;gap:12px;padding:14px 10px;border-top:1px solid #27382b}.time{font-size:12px;color:#b9cdbd;width:46px;text-align:center;flex-shrink:0}.time small{display:block;color:#809987;margin-top:5px;font-size:10px}.teams{flex:1;display:grid;gap:10px;min-width:0;cursor:pointer}.team{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700}.crest{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:#2b4633;color:#d9f8dc;font-size:10px;flex-shrink:0}.teamname{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.scores{display:grid;gap:14px;font-weight:900}.star{border:0;background:transparent;color:#748b79;font-size:24px}.star.on{color:#b6ff38}.notice,.panel{background:#18271d;border:1px solid #304735;border-radius:13px;margin:15px;padding:14px;color:#b4cbb8;font-size:12px;line-height:1.6}.panel h3{color:white;margin:0 0 8px}.empty{padding:30px;text-align:center;color:#a3b7a8}.bottom{position:fixed;z-index:10;bottom:0;left:0;right:0;display:flex;justify-content:space-around;background:#101a14ed;border-top:1px solid #304335;padding:10px 4px calc(12px + env(safe-area-inset-bottom))}.bottom button{background:none;border:0;color:#98aa9b;display:grid;gap:4px;justify-items:center;font-size:11px}.bottom button b{font-size:22px}.bottom button.active{color:#b6ff38}.detail{padding:20px 16px;background:radial-gradient(circle at top,#2c4c32,#101b14 70%)}.back{background:none;color:#b6ff38;border:0;font-weight:800;padding:5px}.versus{display:flex;justify-content:space-between;align-items:center;gap:8px;text-align:center;margin:25px 0}.versus>div{width:36%;font-size:14px;font-weight:800}.bigcrest{width:62px;height:62px;border-radius:50%;background:#304c36;display:grid;place-items:center;margin:0 auto 10px;font-size:18px}.vs{font-size:25px;color:#b6ff38;font-weight:900}.pitch{position:relative;margin:15px;background:repeating-linear-gradient(0deg,#205037 0 52px,#2b6343 52px 104px);border:2px solid #7da98a;border-radius:12px;padding:25px 10px;min-height:410px;display:flex;flex-direction:column;justify-content:space-between}.pitch:before{content:"";position:absolute;inset:12px;border:1px solid #9abb9f;pointer-events:none}.pitch:after{content:"";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:95px;height:95px;border:1px solid #9abb9f;border-radius:50%;pointer-events:none}.pitchrow{position:relative;z-index:1;display:flex;justify-content:space-around}.player{text-align:center;font-size:10px;text-shadow:0 1px 2px #000}.shirt{display:grid;place-items:center;margin:auto auto 4px;width:31px;height:31px;background:#b6ff38;color:#1d321d;border-radius:8px 8px 12px 12px;font-weight:900;text-shadow:none}.foot{padding:20px;text-align:center;color:#698472;font-size:11px}
+
+/* ZIRVE90 - Kompakt mobil tasarım */
+@media (max-width: 600px) {
+  .hero {
+    padding: 18px 16px 14px !important;
+  }
+
+  .headline {
+    font-size: 23px !important;
+    margin: 8px 0 !important;
+  }
+
+  .eyebrow, .lead {
+    display: none !important;
+  }
+
+  .section {
+    padding: 14px 12px !important;
+  }
+
+  .sectiontitle {
+    font-size: 17px !important;
+  }
+
+  .day {
+    min-width: 58px !important;
+    width: 58px !important;
+    padding: 8px 5px !important;
+    border-radius: 12px !important;
+    gap: 3px !important;
+  }
+
+  .day strong {
+    font-size: 20px !important;
+  }
+
+  .day small {
+    font-size: 11px !important;
+  }
+
+  .scroll {
+    gap: 7px !important;
+  }
+
+  .chip {
+    font-size: 12px !important;
+    padding: 8px 10px !important;
+  }
+
+  .search {
+    padding: 9px 12px !important;
+  }
+}
