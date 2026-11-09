@@ -74,11 +74,13 @@ function staticPage(){
             </button>
           </form>
 
-          <button class="chip" type="button"
-            data-auth="register"
-            style="width:100%">
-            Hesabın yok mu? Üye Ol
-          </button>
+          
+<button class="chip" type="button"
+  data-go="register"
+  style="width:100%">
+  Hesabın yok mu? Üye Ol
+</button>
+
 
           <p class="muted" style="margin-top:15px">
             Üyelik sistemi henüz demo aşamasındadır.
