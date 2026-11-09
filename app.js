@@ -46,6 +46,64 @@ function home(){const onlyFav=state.page==='favorites';return header()+(onlyFav?
 function detail(){if(!state.match)return home();const l=leagues.find(x=>x.id===state.match.id);const g=l?.games[state.match.index];if(!g)return home();const tabs=['Genel','Kadro','İstatistik','Anlatım','Puan durumu'];return `<section class="detail"><button class="back" data-go="home">‹ Geri dön</button><p class="muted" style="text-align:center">${l.flag} ${escapeHtml(l.name)} · ÖRNEK MAÇ</p><div class="versus"><div><span class="bigcrest">${g[3]}</span>${escapeHtml(g[0])}</div><span class="vs">VS</span><div><span class="bigcrest">${g[4]}</span>${escapeHtml(g[1])}</div></div><p class="muted" style="text-align:center">${g[2]} · Gerçek maç verisi bağlı değil</p></section><div class="section"><div class="tabs">${tabs.map(t=>`<button class="tab ${state.tab===t?'selected':''}" data-tab="${t}">${t}</button>`).join('')}</div></div>${state.tab==='Kadro'?`<div class="panel"><h3>Örnek 4-3-3 dizilişi</h3>Oyuncular temsili olarak gösterilmektedir.</div><div class="pitch">${[[9,10,11],[7,8,6],[3,4,5,2],[1]].map(row=>`<div class="pitchrow">${row.map(n=>`<div class="player"><div class="shirt">${n}</div>Oyuncu ${n}</div>`).join('')}</div>`).join('')}</div>`:`<div class="panel"><h3>${escapeHtml(state.tab)}</h3>${state.tab==='Genel'?'Maç detayları burada gösterilecek.': 'Gerçek futbol verileri API bağlantısından sonra gösterilecek.'}</div>`}`;}
 
 function staticPage(){
+  
+  if(state.page==='register'){
+    return header()+`
+      <section class="section">
+        <h2>Üye Ol</h2>
+        <div class="panel">
+          <h3>ZİRVE90 Hesabını Oluştur</h3>
+          <p>Takımını seç, maçları takip et.</p>
+
+          <form id="registerForm">
+            <input class="search"
+              type="text"
+              placeholder="Ad Soyad"
+              autocomplete="name"
+              required>
+
+            <input class="search"
+              type="email"
+              placeholder="E-posta adresin"
+              autocomplete="email"
+              required>
+
+            <input class="search"
+              type="password"
+              placeholder="Şifre (en az 6 karakter)"
+              autocomplete="new-password"
+              minlength="6"
+              required>
+
+            <input class="search"
+              type="password"
+              placeholder="Şifre tekrar"
+              autocomplete="new-password"
+              minlength="6"
+              required>
+
+            <button type="button"
+              class="date selected"
+              style="width:100%;margin-bottom:12px"
+              disabled>
+              Hesap Oluştur (Yakında)
+            </button>
+          </form>
+
+          <button class="chip"
+            type="button"
+            data-go="login"
+            style="width:100%">
+            Zaten hesabın var mı? Giriş Yap
+          </button>
+
+          <p class="muted">
+            Demo ekranı. Gerçek üyelik henüz aktif değil.
+          </p>
+        </div>
+      </section>`;
+  }
+
   if(state.page==='login'){
     return header()+`
       <section class="section">
