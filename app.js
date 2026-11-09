@@ -344,6 +344,19 @@ document.addEventListener('click', e => {
     render();
     window.scrollTo(0, 0);
 
+  } else if (b.hasAttribute('data-choose-team')) {
+    state.favoriteTeam = b.dataset.chooseTeam;
+
+    try {
+      localStorage.setItem('zirve90-country', state.country);
+      localStorage.setItem('zirve90-league', state.favoriteLeague);
+      localStorage.setItem('zirve90-team', state.favoriteTeam);
+    } catch (e) {}
+
+    state.page = 'home';
+    render();
+    window.scrollTo(0, 0);
+
   } else if (b.hasAttribute('data-league')) {
     state.league = b.dataset.league;
     render();
