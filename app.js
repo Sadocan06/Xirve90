@@ -134,7 +134,7 @@ function staticPage(){
 
           
 <button class="chip" type="button"
-  data-go="register"
+data-go="register"
   style="width:100%">
   Hesabın yok mu? Üye Ol
 </button>
