@@ -269,7 +269,7 @@ function render(){
 
 document.addEventListener('click', e => {
   const b = e.target.closest(
-    '[data-go],[data-country],[data-league],[data-day],[data-match],[data-fav],[data-tab]'
+    '[data-go],[data-country],[data-choose-league],[data-league],[data-day],[data-match],[data-fav],[data-tab]'
   );
 
   if (!b) return;
@@ -284,6 +284,13 @@ document.addEventListener('click', e => {
     state.favoriteLeague = '';
     state.favoriteTeam = '';
     state.page = 'chooseLeague';
+    render();
+    window.scrollTo(0, 0);
+
+  } else if (b.hasAttribute('data-choose-league')) {
+    state.favoriteLeague = b.dataset.chooseLeague;
+    state.favoriteTeam = '';
+    state.page = 'chooseTeam';
     render();
     window.scrollTo(0, 0);
 
