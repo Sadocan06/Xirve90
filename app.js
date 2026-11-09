@@ -60,6 +60,38 @@ function detail(){if(!state.match)return home();const l=leagues.find(x=>x.id===s
 function staticPage(){
   
   if(state.page==='country'){
+    
+  if(state.page==='chooseLeague'){
+    const isTR = state.country === 'TR';
+
+    return header()+`
+      <section class="section">
+        <h2>🏆 Ligini Seç</h2>
+        <div class="panel">
+          <h3>${isTR ? '🇹🇷 Türkiye' : '🇩🇪 Almanya'}</h3>
+          <p>Takip etmek istediğin ligi seç.</p>
+
+          <button class="chip" type="button"
+            data-choose-league="${isTR ? 'superlig' : 'bundesliga'}"
+            style="display:block;width:100%;margin:12px 0;text-align:left">
+            ${isTR ? '⚽ Süper Lig' : '⚽ Bundesliga'}
+          </button>
+
+          <button class="chip" type="button"
+            data-choose-league="${isTR ? 'birincilig' : 'bundesliga2'}"
+            style="display:block;width:100%;margin:12px 0;text-align:left">
+            ${isTR ? '⚽ 1. Lig' : '⚽ 2. Bundesliga'}
+          </button>
+
+          <button class="chip" type="button"
+            data-go="country"
+            style="width:100%;margin-top:12px">
+            ← Ülke Seçimine Dön
+          </button>
+        </div>
+      </section>`;
+  }
+
     return header()+`
       <section class="section">
         <h2>🌍 Ülkeni Seç</h2>
