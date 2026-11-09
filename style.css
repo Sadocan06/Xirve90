@@ -53,6 +53,47 @@
   }
 }
 
+
+/* ZIRVE90 MOBIL TASARIM */
+@media (max-width: 600px) {
+  .hero {
+    padding: 10px 14px !important;
+    min-height: 0 !important;
+  }
+
+  .hero .eyebrow,
+  .hero .headline,
+  .hero .lead,
+  .hero .status {
+    display: none !important;
+  }
+
+  .day {
+    min-width: 48px !important;
+    width: 48px !important;
+    height: 38px !important;
+    padding: 2px !important;
+    border-radius: 0 !important;
+  }
+
+  .day strong {
+    font-size: 13px !important;
+  }
+
+  .day small {
+    font-size: 9px !important;
+  }
+
+  .day small:last-child {
+    display: none !important;
+  }
+
+  .day.selected {
+    border-bottom: 2px solid #b6ff38 !important;
+  }
+}
+
+
 /* ZIRVE90 - Ince tarih seridi */
 @media (max-width: 600px) {
   .scroll {
