@@ -16,7 +16,19 @@ const leagues = [
   {id:'uefa',name:'UEFA Şampiyonlar Ligi',flag:'🏆',games:[['Real Madrid','Bayern Münih','22:00','RMA','FCB']]}
 ];
 const root = document.getElementById('app');
-const state = {page:'home',league:'all',search:'',day:0,match:null,tab:'Genel'};
+
+const state = {
+  page: 'home',
+  league: 'all',
+  search: '',
+  day: 0,
+  match: null,
+  tab: 'Genel',
+  country: '',
+  favoriteLeague: '',
+  favoriteTeam: ''
+};
+
 let favorites=[];
 try { const stored=JSON.parse(localStorage.getItem('zirve90-favorites-clean')||'[]'); favorites=Array.isArray(stored)?stored:[]; } catch(e) { favorites=[]; }
 const escapeHtml=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
