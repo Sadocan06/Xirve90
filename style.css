@@ -184,3 +184,54 @@
     gap: 8px !important;
   }
 }
+
+/* ZIRVE90 - DOGRU KOMPAKT TASARIM */
+@media (max-width: 600px) {
+
+  .hero {
+    padding: 10px 14px !important;
+    min-height: 0 !important;
+  }
+
+  .hero .sub,
+  .hero h1,
+  .hero .muted {
+    display: none !important;
+  }
+
+  .hero .brand {
+    font-size: 24px !important;
+  }
+
+  .hero .iconbtn {
+    padding: 7px 10px !important;
+  }
+
+  .dates {
+    gap: 0 !important;
+    padding-bottom: 0 !important;
+  }
+
+  .date {
+    min-width: 50px !important;
+    width: 50px !important;
+    height: 38px !important;
+    padding: 3px 2px !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    font-size: 10px !important;
+  }
+
+  .date strong {
+    font-size: 13px !important;
+    margin: 0 !important;
+  }
+
+  .date.selected {
+    background: transparent !important;
+    color: #b6ff38 !important;
+    border-bottom: 2px solid #b6ff38 !important;
+  }
+
+}
