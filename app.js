@@ -120,6 +120,56 @@ function staticPage(){
       </section>`;
   }
 
+  if(state.page==='chooseTeam'){
+    const teams = {
+      superlig: [
+        'Galatasaray', 'Fenerbahçe',
+        'Beşiktaş', 'Trabzonspor',
+        'Başakşehir', 'Samsunspor'
+      ],
+      birincilig: [
+        'Sivasspor', 'Sakaryaspor',
+        'Boluspor', 'Pendikspor'
+      ],
+      bundesliga: [
+        'Bayern Münih', 'Borussia Dortmund',
+        'Bayer Leverkusen', 'RB Leipzig',
+        'Eintracht Frankfurt', 'Stuttgart'
+      ],
+      bundesliga2: [
+        'Schalke 04', 'Hertha Berlin',
+        'Hannover 96', 'Kaiserslautern'
+      ]
+    };
+
+    const selectedTeams = teams[state.favoriteLeague] || [];
+
+    return header()+`
+      <section class="section">
+        <h2>⭐ Favori Takımını Seç</h2>
+        <div class="panel">
+          <h3>Hangi takımı tutuyorsun?</h3>
+          <p>Takımını seçerek devam et.</p>
+
+          ${selectedTeams.map(team=>`
+            <button class="chip"
+              type="button"
+              data-choose-team="${team}"
+              style="display:block;width:100%;margin:10px 0;text-align:left">
+              ⚽ ${team}
+            </button>
+          `).join('')}
+
+          <button class="chip"
+            type="button"
+            data-go="chooseLeague"
+            style="width:100%;margin-top:15px">
+            ← Lig Seçimine Dön
+          </button>
+        </div>
+      </section>`;
+  }
+
   if(state.page==='register'){
     return header()+`
       <section class="section">
