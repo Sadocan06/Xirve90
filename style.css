@@ -235,3 +235,26 @@
   }
 
 }
+
+/* ZIRVE90 - Kaydirilabilir tarih seridi */
+@media (max-width: 600px) {
+  .dates {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    gap: 4px !important;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-x;
+    scrollbar-width: none;
+  }
+
+  .dates::-webkit-scrollbar {
+    display: none;
+  }
+
+  .dates .date {
+    flex: 0 0 52px !important;
+    min-width: 52px !important;
+  }
+}
