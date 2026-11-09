@@ -21,7 +21,24 @@ let favorites=[];
 try { const stored=JSON.parse(localStorage.getItem('zirve90-favorites-clean')||'[]'); favorites=Array.isArray(stored)?stored:[]; } catch(e) { favorites=[]; }
 const escapeHtml=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const matchKey=(league,index)=>`${league.id}-${index}`;
-function header(){return `<header class="hero"><div class="top"><div class="brand">ZİRVE<span>90</span></div><div class="actions"><button class="iconbtn" data-go="favorites">☆</button><button class="iconbtn" data-go="more">⚙</button></div></div><div class="sub">FUTBOLUN MERKEZİ</div><h1>Maçın <span class="accent">her anı.</span></h1><div class="muted">Skorlar, kadrolar ve ligler tek yerde.</div></header>`;}
+
+function header(){
+  return `
+    <header class="hero">
+      <div class="top">
+        <div style="display:flex;align-items:center;gap:12px">
+          <button class="iconbtn" id="menuBtn" aria-label="Menüyü aç">☰</button>
+          <div class="brand">ZİRVE<span>90</span></div>
+        </div>
+        <div class="actions">
+          <button class="iconbtn" data-go="favorites">☆</button>
+          <button class="iconbtn" data-go="more">⚙</button>
+        </div>
+      </div>
+    </header>
+  `;
+}
+
 function calendar(){const names=['Paz','Pzt','Sal','Çar','Per','Cum','Cmt'];return `<section class="section"><div class="heading"><h2>Maç takvimi</h2><span class="muted">Tarih seç</span></div><div class="dates">${Array.from({length:61},(_,i)=>{const offset=i-30;const d=new Date();d.setDate(d.getDate()+offset);return `<button class="date ${state.day===offset?'selected':''}" data-day="${offset}"><small>${offset===0?'Bugün':names[d.getDay()]}</small><strong>${d.getDate()}</strong><small>${d.toLocaleDateString('tr-TR',{month:'short'})}</small></button>`}).join('')}</div></section>`;}
 function filters(){return `<section class="section"><div class="heading"><h2>Ligler</h2><span class="muted">${leagues.length} organizasyon</span></div><div class="chips"><button class="chip ${state.league==='all'?'selected':''}" data-league="all">🌍 Tümü</button>${leagues.map(l=>`<button class="chip ${state.league===l.id?'selected':''}" data-league="${l.id}">${l.flag} ${escapeHtml(l.name)}</button>`).join('')}</div></section>`;}
 function matchCards(onlyFav=false){const groups=leagues.filter(l=>state.league==='all'||state.league===l.id).map(l=>{const games=l.games.map((g,i)=>({g,i})).filter(({g,i})=>(!onlyFav||favorites.includes(matchKey(l,i)))&&`${g[0]} ${g[1]} ${l.name}`.toLocaleLowerCase('tr').includes(state.search.toLocaleLowerCase('tr')));if(!games.length)return '';return `<article class="league"><div class="leaguehead"><span>${l.flag} ${escapeHtml(l.name)}</span><span class="muted">${games.length} maç</span></div>${games.map(({g,i})=>`<div class="match"><div class="time">${g[2]}<small>ÖRNEK</small></div><div class="teams" data-match="${l.id}:${i}"><div class="team"><span class="crest">${g[3].slice(0,2)}</span><span class="teamname">${escapeHtml(g[0])}</span></div><div class="team"><span class="crest">${g[4].slice(0,2)}</span><span class="teamname">${escapeHtml(g[1])}</span></div></div><div class="scores">–<br>–</div><button class="star ${favorites.includes(matchKey(l,i))?'on':''}" data-fav="${matchKey(l,i)}">${favorites.includes(matchKey(l,i))?'★':'☆'}</button></div>`).join('')}</article>`}).join('');return groups||'<div class="empty">Bu filtrede maç bulunamadı.</div>';}
