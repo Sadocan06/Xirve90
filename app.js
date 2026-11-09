@@ -319,7 +319,7 @@ function render(){
 
 document.addEventListener('click', e => {
   const b = e.target.closest(
-    '[data-go],[data-country],[data-choose-league],[data-league],[data-day],[data-match],[data-fav],[data-tab]'
+   '[data-go],[data-country],[data-choose-league],[data-choose-team],[data-league],[data-day],[data-match],[data-fav],[data-tab]'
   );
 
   if (!b) return;
