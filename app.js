@@ -18,7 +18,7 @@ const leagues = [
 const root = document.getElementById('app');
 
 const state = {
-  page: 'home',
+  page: localStorage.getItem('zirve90-team') ? 'home' : 'country',
   league: 'all',
   search: '',
   day: 0,
