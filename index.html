@@ -1,168 +1,28 @@
-
 <!doctype html>
 <html lang="tr">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#090e0d">
-  <title>Zirve90 | Maç Merkezi</title>
-
-  <link rel="stylesheet" href="./style.css?v=207">
-
-  <style>
-    #menuOverlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,.7);
-      z-index: 1000;
-    }
-
-    #menuOverlay.open {
-      display: block;
-    }
-
-    #sideMenu {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 82%;
-      max-width: 320px;
-      height: 100vh;
-      height: 100dvh;
-      background: #101a14;
-      color: #fff;
-      z-index: 1001;
-      transform: translateX(-105%);
-      transition: transform .25s ease;
-      overflow-y: auto;
-      padding: 20px 16px;
-      box-shadow: 5px 0 30px #0007;
-      visibility: hidden;
-    }
-
-    #sideMenu.open {
-      transform: translateX(0);
-      visibility: visible;
-    }
-
-    .menuHeader {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 18px;
-    }
-
-    .menuLogo {
-      font-size: 24px;
-      font-weight: 900;
-      font-style: italic;
-    }
-
-    .menuLogo span {
-      color: #b6ff38;
-    }
-
-    #sideMenu button {
-      display: block;
-      width: 100%;
-      padding: 15px 10px;
-      text-align: left;
-      background: transparent;
-      color: #fff;
-      border: 0;
-      border-bottom: 1px solid #2b4030;
-      font-size: 14px;
-    }
-
-    #sideMenu #closeMenu {
-      width: 38px;
-      padding: 8px;
-      text-align: center;
-      font-size: 22px;
-      border: 0;
-    }
-
-    #sideMenu button:active {
-      color: #b6ff38;
-    }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#090e0d">
+<title>Zirve90 | Maç Merkezi</title>
+<link rel="stylesheet" href="./style.css?v=300">
 </head>
-
 <body>
-  <div id="app">Zirve90 yükleniyor...</div>
-
-  <div id="menuOverlay"></div>
-
-  <aside id="sideMenu" aria-label="Zirve90 menüsü">
-    <div class="menuHeader">
-      <div class="menuLogo">ZİRVE<span>90</span></div>
-      <button id="closeMenu" aria-label="Menüyü kapat">✕</button>
-    </div>
-
-    <button data-menu-page="login" data-go="login">👤 Giriş Yap / Üye Ol</button>
-    <button data-menu-page="home">⚽ Canlı Skor</button>
-    <button data-menu-page="matches">📅 Maçlar</button>
-    <button data-menu-page="standings">🏆 Puan Durumu</button>
-    <button data-menu-page="leagues">🌍 Ligler</button>
-    <button data-menu-page="news">📰 Haberler</button>
-    <button data-menu-page="videos">▶️ Videolar</button>
-    <button data-menu-page="favorites">⭐ Favoriler</button>
-    <button data-menu-page="more">⚙️ Ayarlar</button>
-  </aside>
-
-  <script src="./app.js?v=106" defer></script>
-
-  <script>
-    (function() {
-      const menu = document.getElementById('sideMenu');
-      const overlay = document.getElementById('menuOverlay');
-
-      function openMenu() {
-        menu.classList.add('open');
-        overlay.classList.add('open');
-      }
-
-      function closeMenu() {
-        menu.classList.remove('open');
-        overlay.classList.remove('open');
-      }
-
-      document.addEventListener('click', function(e) {
-        if (e.target.closest('#menuBtn')) {
-          e.preventDefault();
-          openMenu();
-          return;
-        }
-
-        if (e.target.closest('#closeMenu') || e.target === overlay) {
-          closeMenu();
-          return;
-        }
-
-        const item = e.target.closest('[data-menu-page]');
-
-        if (item) {
-          closeMenu();
-
-          const page = item.dataset.menuPage;
-          const nav = document.querySelector('[data-go="' + page + '"]');
-
-         
-if (nav) {
-  nav.click();
-} else if (page === 'login') {
-  const loginButton = document.createElement('button');
-  loginButton.dataset.go = 'login';
-  loginButton.style.display = 'none';
-  document.body.appendChild(loginButton);
-  loginButton.click();
-  loginButton.remove();
-}
-
-        }
-      });
-    })();
-  </script>
+<div id="app">Zirve90 yükleniyor...</div>
+<div id="menuOverlay"></div>
+<aside id="sideMenu" aria-label="Zirve90 menüsü">
+  <div class="menuHeader"><div class="menuLogo">ZİRVE<span>90</span></div><button id="closeMenu" aria-label="Menüyü kapat">✕</button></div>
+  <button data-menu-page="login">👤 Giriş Yap / Üye Ol</button>
+  <button data-menu-page="home">⚽ Canlı Skor</button>
+  <button data-menu-page="matches">📅 Maçlar</button>
+  <button data-menu-page="standings">🏆 Puan Durumu</button>
+  <button data-menu-page="leagues">🌍 Ligler</button>
+  <button data-menu-page="country">🌐 Ülke / Takım Değiştir</button>
+  <button data-menu-page="news">📰 Haberler</button>
+  <button data-menu-page="videos">▶️ Videolar</button>
+  <button data-menu-page="favorites">⭐ Favoriler</button>
+  <button data-menu-page="more">⚙️ Ayarlar</button>
+</aside>
+<script src="./app.js?v=300" defer></script>
 </body>
 </html>
