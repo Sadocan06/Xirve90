@@ -105,3 +105,41 @@
     color: #b6ff38 !important;
   }
 }
+
+/* ZIRVE90 - Kompakt ust alan */
+@media (max-width: 600px) {
+  .hero {
+    padding: 12px 14px !important;
+    min-height: 0 !important;
+  }
+
+  .hero .eyebrow,
+  .hero .headline,
+  .hero .lead,
+  .hero .status {
+    display: none !important;
+  }
+
+  .hero .top {
+    min-height: 44px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+  }
+
+  .hero .brand {
+    font-size: 25px !important;
+  }
+
+  .hero .round {
+    width: 36px !important;
+    height: 36px !important;
+    font-size: 17px !important;
+  }
+
+  .hero .topright {
+    gap: 8px !important;
+  }
+}
