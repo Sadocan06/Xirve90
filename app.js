@@ -29,7 +29,39 @@ function home(){const onlyFav=state.page==='favorites';return header()+(onlyFav?
 function detail(){if(!state.match)return home();const l=leagues.find(x=>x.id===state.match.id);const g=l?.games[state.match.index];if(!g)return home();const tabs=['Genel','Kadro','İstatistik','Anlatım','Puan durumu'];return `<section class="detail"><button class="back" data-go="home">‹ Geri dön</button><p class="muted" style="text-align:center">${l.flag} ${escapeHtml(l.name)} · ÖRNEK MAÇ</p><div class="versus"><div><span class="bigcrest">${g[3]}</span>${escapeHtml(g[0])}</div><span class="vs">VS</span><div><span class="bigcrest">${g[4]}</span>${escapeHtml(g[1])}</div></div><p class="muted" style="text-align:center">${g[2]} · Gerçek maç verisi bağlı değil</p></section><div class="section"><div class="tabs">${tabs.map(t=>`<button class="tab ${state.tab===t?'selected':''}" data-tab="${t}">${t}</button>`).join('')}</div></div>${state.tab==='Kadro'?`<div class="panel"><h3>Örnek 4-3-3 dizilişi</h3>Oyuncular temsili olarak gösterilmektedir.</div><div class="pitch">${[[9,10,11],[7,8,6],[3,4,5,2],[1]].map(row=>`<div class="pitchrow">${row.map(n=>`<div class="player"><div class="shirt">${n}</div>Oyuncu ${n}</div>`).join('')}</div>`).join('')}</div>`:`<div class="panel"><h3>${escapeHtml(state.tab)}</h3>${state.tab==='Genel'?'Maç detayları burada gösterilecek.': 'Gerçek futbol verileri API bağlantısından sonra gösterilecek.'}</div>`}`;}
 function staticPage(){return header()+`<section class="section"><h2>${state.page==='standings'?'Puan durumu':'Ayarlar'}</h2><div class="panel"><h3>${state.page==='standings'?'Gerçek puan tablosu yakında':'Zirve90 v1.0'}</h3>${state.page==='standings'?'Uydurma puan tablosu göstermiyoruz. API bağlandığında açılacak.':'Bu sürüm arayüz önizlemesidir. Canlı skor, hesap ve bildirim henüz bağlı değildir.'}</div></section>`;}
 function navigation(){return `<nav class="bottom">${[['home','◉','Canlı'],['matches','▦','Maçlar'],['standings','▤','Puan'],['favorites','☆','Takip'],['more','☰','Diğer']].map(([p,i,t])=>`<button class="${state.page===p?'active':''}" data-go="${p}"><b>${i}</b>${t}</button>`).join('')}</nav>`;}
-function render(){if(!root)return;const page=state.page==='detail'?detail():['home','matches','favorites'].includes(state.page)?home():staticPage();root.innerHTML=`<div class="app">${page}<div class="notice">ⓘ DEMO: Bu ekrandaki maçlar ve saatler örnektir. Canlı skor verisi henüz bağlı değildir.</div><div class="foot">ZİRVE90 · Tasarım önizlemesi</div></div>${navigation()}`;const input=document.getElementById('search');if(input)input.addEventListener('input',e=>{state.search=e.target.value;document.getElementById('match-list').innerHTML=matchCards(state.page==='favorites');});}
+
+function render(){
+  if(!root)return;
+
+  const page=state.page==='detail'
+    ?detail()
+    :['home','matches','favorites'].includes(state.page)
+      ?home()
+      :staticPage();
+
+  root.innerHTML=`<div class="app">${page}<div class="notice">ⓘ DEMO: Bu ekrandaki maçlar ve saatler örnektir. Canlı skor verisi henüz bağlı değildir.</div><div class="foot">ZİRVE90 · Tasarım önizlemesi</div></div>${navigation()}`;
+
+  const input=document.getElementById('search');
+
+  if(input){
+    input.addEventListener('input',e=>{
+      state.search=e.target.value;
+      document.getElementById('match-list').innerHTML=matchCards(state.page==='favorites');
+    });
+  }
+
+  // Takvimde secili gunu otomatik ortala
+  const selectedDate=document.querySelector('.dates .date.selected');
+
+  if(selectedDate){
+    selectedDate.scrollIntoView({
+      behavior:'instant',
+      block:'nearest',
+      inline:'center'
+    });
+  }
+}
+
 document.addEventListener('click',e=>{const b=e.target.closest('[data-go],[data-league],[data-day],[data-match],[data-fav],[data-tab]');if(!b)return;if(b.hasAttribute('data-go')){state.page=b.dataset.go;render();window.scrollTo(0,0);}else if(b.hasAttribute('data-league')){state.league=b.dataset.league;render();}else if(b.hasAttribute('data-day')){state.day=Number(b.dataset.day);render();}else if(b.hasAttribute('data-match')){const [id,index]=b.dataset.match.split(':');state.match={id,index:Number(index)};state.tab='Genel';state.page='detail';render();window.scrollTo(0,0);}else if(b.hasAttribute('data-fav')){const k=b.dataset.fav;favorites=favorites.includes(k)?favorites.filter(x=>x!==k):[...favorites,k];try{localStorage.setItem('zirve90-favorites-clean',JSON.stringify(favorites));}catch(e){}render();}else if(b.hasAttribute('data-tab')){state.tab=b.dataset.tab;render();}});
 try{render();}catch(err){console.error(err);if(root)root.textContent='Zirve90 başlatılamadı: '+err.message;}
 
