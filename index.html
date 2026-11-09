@@ -85,6 +85,11 @@
 
   document.addEventListener('click', function(e){
     if(e.target.closest('#menuBtn')){
+  e.preventDefault();
+  menu.classList.add('open');
+  overlay.classList.add('open');
+  return;
+}
       menu.classList.add('open');
       overlay.classList.add('open');
     }
