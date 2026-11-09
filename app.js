@@ -234,6 +234,63 @@ function render(){
   }
 }
 
-document.addEventListener('click',e=>{const b=e.target.closest('[data-go],[data-league],[data-day],[data-match],[data-fav],[data-tab]');if(!b)return;if(b.hasAttribute('data-go')){state.page=b.dataset.go;render();window.scrollTo(0,0);}else if(b.hasAttribute('data-league')){state.league=b.dataset.league;render();}else if(b.hasAttribute('data-day')){state.day=Number(b.dataset.day);render();}else if(b.hasAttribute('data-match')){const [id,index]=b.dataset.match.split(':');state.match={id,index:Number(index)};state.tab='Genel';state.page='detail';render();window.scrollTo(0,0);}else if(b.hasAttribute('data-fav')){const k=b.dataset.fav;favorites=favorites.includes(k)?favorites.filter(x=>x!==k):[...favorites,k];try{localStorage.setItem('zirve90-favorites-clean',JSON.stringify(favorites));}catch(e){}render();}else if(b.hasAttribute('data-tab')){state.tab=b.dataset.tab;render();}});
+
+document.addEventListener('click', e => {
+  const b = e.target.closest(
+    '[data-go],[data-country],[data-league],[data-day],[data-match],[data-fav],[data-tab]'
+  );
+
+  if (!b) return;
+
+  if (b.hasAttribute('data-go')) {
+    state.page = b.dataset.go;
+    render();
+    window.scrollTo(0, 0);
+
+  } else if (b.hasAttribute('data-country')) {
+    state.country = b.dataset.country;
+    state.favoriteLeague = '';
+    state.favoriteTeam = '';
+    state.page = 'chooseLeague';
+    render();
+    window.scrollTo(0, 0);
+
+  } else if (b.hasAttribute('data-league')) {
+    state.league = b.dataset.league;
+    render();
+
+  } else if (b.hasAttribute('data-day')) {
+    state.day = Number(b.dataset.day);
+    render();
+
+  } else if (b.hasAttribute('data-match')) {
+    const [id, index] = b.dataset.match.split(':');
+    state.match = { id, index: Number(index) };
+    state.tab = 'Genel';
+    state.page = 'detail';
+    render();
+    window.scrollTo(0, 0);
+
+  } else if (b.hasAttribute('data-fav')) {
+    const k = b.dataset.fav;
+    favorites = favorites.includes(k)
+      ? favorites.filter(x => x !== k)
+      : [...favorites, k];
+
+    try {
+      localStorage.setItem(
+        'zirve90-favorites-clean',
+        JSON.stringify(favorites)
+      );
+    } catch (e) {}
+
+    render();
+
+  } else if (b.hasAttribute('data-tab')) {
+    state.tab = b.dataset.tab;
+    render();
+  }
+});
+
 try{render();}catch(err){console.error(err);if(root)root.textContent='Zirve90 başlatılamadı: '+err.message;}
 
