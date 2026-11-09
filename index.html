@@ -148,9 +148,18 @@
           const page = item.dataset.menuPage;
           const nav = document.querySelector('[data-go="' + page + '"]');
 
-          if (nav) {
-            nav.click();
-          }
+         
+if (nav) {
+  nav.click();
+} else if (page === 'login') {
+  const loginButton = document.createElement('button');
+  loginButton.dataset.go = 'login';
+  loginButton.style.display = 'none';
+  document.body.appendChild(loginButton);
+  loginButton.click();
+  loginButton.remove();
+}
+
         }
       });
     })();
