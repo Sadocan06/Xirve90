@@ -59,6 +59,35 @@ function detail(){if(!state.match)return home();const l=leagues.find(x=>x.id===s
 
 function staticPage(){
   
+  if(state.page==='country'){
+    return header()+`
+      <section class="section">
+        <h2>🌍 Ülkeni Seç</h2>
+        <div class="panel">
+          <h3>Hangi ülkenin futbolunu takip ediyorsun?</h3>
+          <p>Liglerini ve favori takımını seçmek için devam et.</p>
+
+          <button class="chip"
+            type="button"
+            data-country="TR"
+            style="display:block;width:100%;margin:12px 0;text-align:left">
+            🇹🇷 Türkiye
+          </button>
+
+          <button class="chip"
+            type="button"
+            data-country="DE"
+            style="display:block;width:100%;margin:12px 0;text-align:left">
+            🇩🇪 Almanya
+          </button>
+
+          <p class="muted">
+            Sonraki adım: Lig seçimi
+          </p>
+        </div>
+      </section>`;
+  }
+
   if(state.page==='register'){
     return header()+`
       <section class="section">
