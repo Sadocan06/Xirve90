@@ -1,0 +1,9 @@
+
+{
+  "name": "zirve90-api",
+  "main": "worker.js",
+  "compatibility_date": "2026-11-10",
+  "observability": {
+    "enabled": true
+  }
+}
