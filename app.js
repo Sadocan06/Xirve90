@@ -51,6 +51,24 @@ const seasonFor=(leagueId)=>{const now=new Date();const year=now.getFullYear();c
 function header(){return `<header class="hero"><div class="top"><div style="display:flex;align-items:center;gap:12px"><button class="iconbtn" id="menuBtn" aria-label="Menüyü aç">☰</button><div class="brand">ZİRVE<span>90</span></div></div><div class="actions"><button class="iconbtn" data-go="favorites">☆</button><button class="iconbtn" data-go="more">⚙</button></div></div></header>`;}
 function calendar(){const names=['Paz','Pzt','Sal','Çar','Per','Cum','Cmt'];return `<section class="section"><div class="heading"><h2>Maç takvimi</h2><span class="muted">Tarih seç</span></div><div class="dates">${Array.from({length:61},(_,i)=>{const offset=i-30,d=new Date();d.setDate(d.getDate()+offset);return `<button class="date ${state.day===offset?'selected':''}" data-day="${offset}"><small>${offset===0?'Bugün':names[d.getDay()]}</small><strong>${d.getDate()}</strong><small>${d.toLocaleDateString('tr-TR',{month:'short'})}</small></button>`;}).join('')}</div></section>`;}
 function filters(){return `<section class="section"><div class="heading"><h2>Ligler</h2><span class="muted">${leagues.length} demo organizasyon</span></div><div class="chips"><button class="chip ${state.league==='all'?'selected':''}" data-league="all">🌍 Tümü</button>${leagues.map(l=>`<button class="chip ${state.league===l.id?'selected':''}" data-league="${l.id}">${l.flag} ${esc(l.name)}</button>`).join('')}</div></section>`;}
+
+let realMatches = [];
+
+async function loadMatches() {
+  try {
+    const response = await fetch(`${API_BASE}/matches`);
+    if (!response.ok) throw new Error('API hatası');
+
+    const result = await response.json();
+    realMatches = Array.isArray(result.data) ? result.data : [];
+    console.log('Gerçek maç sayısı:', realMatches.length);
+  } catch (error) {
+    console.error('Maçlar alınamadı:', error);
+  }
+}
+
+loadMatches();
+
 function matchCards(onlyFav=false){const groups=leagues.filter(l=>state.league==='all'||state.league===l.id).map(l=>{const games=l.games.map((g,i)=>({g,i})).filter(({g,i})=>(!onlyFav||favorites.includes(matchKey(l,i)))&&`${g[0]} ${g[1]} ${l.name}`.toLocaleLowerCase('tr').includes(state.search.toLocaleLowerCase('tr')));if(!games.length)return '';return `<article class="league"><div class="leaguehead"><span>${l.flag} ${esc(l.name)}</span><span class="muted">${games.length} örnek maç</span></div>${games.map(({g,i})=>`<div class="match"><div class="time">${g[2]}<small>ÖRNEK</small></div><div class="teams" data-match="${l.id}:${i}"><div class="team"><span class="crest">${esc(g[3].slice(0,2))}</span><span class="teamname">${esc(g[0])}</span></div><div class="team"><span class="crest">${esc(g[4].slice(0,2))}</span><span class="teamname">${esc(g[1])}</span></div></div><div class="scores">–<br>–</div><button class="star ${favorites.includes(matchKey(l,i))?'on':''}" data-fav="${matchKey(l,i)}">${favorites.includes(matchKey(l,i))?'★':'☆'}</button></div>`).join('')}</article>`;}).join('');return groups||'<div class="empty">Bu filtrede maç bulunamadı.</div>';}
 function home(){const fav=state.page==='favorites';return header()+(fav?'':calendar())+`<section class="section"><input class="search" id="search" placeholder="Takım veya lig ara..." value="${esc(state.search)}"></section>`+(!fav?filters():'')+`<section class="section"><div class="heading"><h2>${fav?'Takip ettiklerim':'Maç merkezi'}</h2><span class="muted">Örnek veriler</span></div><div id="match-list">${matchCards(fav)}</div></section>`;}
 function detail(){if(!state.match)return home();const l=leagues.find(x=>x.id===state.match.id),g=l?.games[state.match.index];if(!g)return home();const tabs=['Genel','Kadro','İstatistik','Anlatım','Puan durumu'];return `<section class="detail"><button class="back" data-go="home">‹ Geri dön</button><p class="muted" style="text-align:center">${l.flag} ${esc(l.name)} · ÖRNEK MAÇ</p><div class="versus"><div><span class="bigcrest">${esc(g[3])}</span>${esc(g[0])}</div><span class="vs">VS</span><div><span class="bigcrest">${esc(g[4])}</span>${esc(g[1])}</div></div><p class="muted" style="text-align:center">${g[2]} · Gerçek maç verisi bağlı değil</p></section><div class="section"><div class="tabs">${tabs.map(t=>`<button class="tab ${state.tab===t?'selected':''}" data-tab="${t}">${t}</button>`).join('')}</div></div>${state.tab==='Kadro'?`<div class="panel"><h3>Örnek 4-3-3 dizilişi</h3>Oyuncular temsili olarak gösterilmektedir.</div><div class="pitch">${[[9,10,11],[7,8,6],[3,4,5,2],[1]].map(row=>`<div class="pitchrow">${row.map(n=>`<div class="player"><div class="shirt">${n}</div>Oyuncu ${n}</div>`).join('')}</div>`).join('')}</div>`:`<div class="panel"><h3>${esc(state.tab)}</h3>${state.tab==='Genel'?'Maç detayları burada gösterilecek.':'Gerçek futbol verileri API bağlantısından sonra gösterilecek.'}</div>`}`;}
