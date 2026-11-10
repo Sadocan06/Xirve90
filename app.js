@@ -3,7 +3,7 @@
    IMPORTANT: Never place your API key here. Set API_BASE to your own secure proxy URL.
    Proxy contract: GET /teams?league=203&season=2026 -> API-Football JSON response.
 */
-const API_BASE = ''; // Example: 'https://your-secure-api.example.com' (no trailing slash)
+const API_BASE = 'https://zirve90-api.yrdk92.workers.dev'; // Example: 'https://your-secure-api.example.com' (no trailing slash)
 const countries = [
  {code:'TR',name:'Türkiye',flag:'🇹🇷',leagues:[{id:203,name:'Süper Lig'},{id:204,name:'1. Lig'}]},
  {code:'DE',name:'Almanya',flag:'🇩🇪',leagues:[{id:78,name:'Bundesliga'},{id:79,name:'2. Bundesliga'}]},
