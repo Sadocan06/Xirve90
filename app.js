@@ -4,6 +4,21 @@
    Proxy contract: GET /teams?league=203&season=2026 -> API-Football JSON response.
 */
 const API_BASE = 'https://zirve90-api.yrdk92.workers.dev'; // Example: 'https://your-secure-api.example.com' (no trailing slash)
+let liveMatches = [];
+
+async function loadLiveMatches() {
+  try {
+    const response = await fetch(`${API_BASE}/matches`);
+    if (!response.ok) throw new Error('API hatası');
+
+    const result = await response.json();
+    liveMatches = Array.isArray(result.data) ? result.data : [];
+
+    render();
+  } catch (error) {
+    console.error('Maçlar yüklenemedi:', error);
+  }
+}
 const countries = [
  {code:'TR',name:'Türkiye',flag:'🇹🇷',leagues:[{id:203,name:'Süper Lig'},{id:204,name:'1. Lig'}]},
  {code:'DE',name:'Almanya',flag:'🇩🇪',leagues:[{id:78,name:'Bundesliga'},{id:79,name:'2. Bundesliga'}]},
@@ -67,9 +82,52 @@ async function loadMatches() {
   }
 }
 
-loadMatches();
+loadLiveMatches();
 
-function matchCards(onlyFav=false){const groups=leagues.filter(l=>state.league==='all'||state.league===l.id).map(l=>{const games=l.games.map((g,i)=>({g,i})).filter(({g,i})=>(!onlyFav||favorites.includes(matchKey(l,i)))&&`${g[0]} ${g[1]} ${l.name}`.toLocaleLowerCase('tr').includes(state.search.toLocaleLowerCase('tr')));if(!games.length)return '';return `<article class="league"><div class="leaguehead"><span>${l.flag} ${esc(l.name)}</span><span class="muted">${games.length} örnek maç</span></div>${games.map(({g,i})=>`<div class="match"><div class="time">${g[2]}<small>ÖRNEK</small></div><div class="teams" data-match="${l.id}:${i}"><div class="team"><span class="crest">${esc(g[3].slice(0,2))}</span><span class="teamname">${esc(g[0])}</span></div><div class="team"><span class="crest">${esc(g[4].slice(0,2))}</span><span class="teamname">${esc(g[1])}</span></div></div><div class="scores">–<br>–</div><button class="star ${favorites.includes(matchKey(l,i))?'on':''}" data-fav="${matchKey(l,i)}">${favorites.includes(matchKey(l,i))?'★':'☆'}</button></div>`).join('')}</article>`;}).join('');return groups||'<div class="empty">Bu filtrede maç bulunamadı.</div>';}
+
+function matchCards(onlyFav=false){
+  if (!liveMatches.length) {
+    return '<div class="empty">Şu anda gösterilecek gerçek maç bulunamadı.</div>';
+  }
+
+  const matches = liveMatches.filter(m => {
+    const search = `${m.homeTeam?.name || ''} ${m.awayTeam?.name || ''} ${m.league?.name || ''}`.toLocaleLowerCase('tr');
+    return search.includes(state.search.toLocaleLowerCase('tr'));
+  });
+
+  const groups = {};
+  matches.forEach(m => {
+    const name = m.league?.name || 'Diğer Ligler';
+    (groups[name] ||= []).push(m);
+  });
+
+  return Object.entries(groups).map(([name, games]) => `
+    <article class="league">
+      <div class="leaguehead">
+        <span>⚽ ${esc(name)}</span>
+        <span class="muted">${games.length} maç</span>
+      </div>
+      ${games.map(m => {
+        const score = m.state?.score?.current;
+        const parts = score ? String(score).split(/\s*-\s*/) : [];
+        const time = new Date(m.date).toLocaleTimeString('tr-TR', {
+          hour:'2-digit', minute:'2-digit'
+        });
+        return `
+          <div class="match">
+            <div class="time">${time}<small>${esc(m.state?.description || '')}</small></div>
+            <div class="teams">
+              <div class="team"><span class="teamname">${esc(m.homeTeam?.name || '')}</span></div>
+              <div class="team"><span class="teamname">${esc(m.awayTeam?.name || '')}</span></div>
+            </div>
+            <div class="scores">${esc(parts[0] || '–')}<br>${esc(parts[1] || '–')}</div>
+          </div>
+        `;
+      }).join('')}
+    </article>
+  `).join('') || '<div class="empty">Maç bulunamadı.</div>';
+}
+
 function home(){const fav=state.page==='favorites';return header()+(fav?'':calendar())+`<section class="section"><input class="search" id="search" placeholder="Takım veya lig ara..." value="${esc(state.search)}"></section>`+(!fav?filters():'')+`<section class="section"><div class="heading"><h2>${fav?'Takip ettiklerim':'Maç merkezi'}</h2><span class="muted">Örnek veriler</span></div><div id="match-list">${matchCards(fav)}</div></section>`;}
 function detail(){if(!state.match)return home();const l=leagues.find(x=>x.id===state.match.id),g=l?.games[state.match.index];if(!g)return home();const tabs=['Genel','Kadro','İstatistik','Anlatım','Puan durumu'];return `<section class="detail"><button class="back" data-go="home">‹ Geri dön</button><p class="muted" style="text-align:center">${l.flag} ${esc(l.name)} · ÖRNEK MAÇ</p><div class="versus"><div><span class="bigcrest">${esc(g[3])}</span>${esc(g[0])}</div><span class="vs">VS</span><div><span class="bigcrest">${esc(g[4])}</span>${esc(g[1])}</div></div><p class="muted" style="text-align:center">${g[2]} · Gerçek maç verisi bağlı değil</p></section><div class="section"><div class="tabs">${tabs.map(t=>`<button class="tab ${state.tab===t?'selected':''}" data-tab="${t}">${t}</button>`).join('')}</div></div>${state.tab==='Kadro'?`<div class="panel"><h3>Örnek 4-3-3 dizilişi</h3>Oyuncular temsili olarak gösterilmektedir.</div><div class="pitch">${[[9,10,11],[7,8,6],[3,4,5,2],[1]].map(row=>`<div class="pitchrow">${row.map(n=>`<div class="player"><div class="shirt">${n}</div>Oyuncu ${n}</div>`).join('')}</div>`).join('')}</div>`:`<div class="panel"><h3>${esc(state.tab)}</h3>${state.tab==='Genel'?'Maç detayları burada gösterilecek.':'Gerçek futbol verileri API bağlantısından sonra gösterilecek.'}</div>`}`;}
 function choicePage(title,body){return header()+`<section class="section"><h2>${title}</h2><div class="panel">${body}</div></section>`;}
