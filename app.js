@@ -128,7 +128,24 @@ function matchCards(onlyFav=false){
   `).join('') || '<div class="empty">Maç bulunamadı.</div>';
 }
 
-function home(){const fav=state.page==='favorites';return header()+(fav?'':calendar())+`<section class="section"><input class="search" id="search" placeholder="Takım veya lig ara..." value="${esc(state.search)}"></section>`+(!fav?filters():'')+`<section class="section"><div class="heading"><h2>${fav?'Takip ettiklerim':'Maç merkezi'}</h2><span class="muted">Örnek veriler</span></div><div id="match-list">${matchCards(fav)}</div></section>`;}
+
+function home(){
+  const fav=state.page==='favorites';
+  return header()+
+    (fav?'':calendar())+
+    `<section class="section">
+      <input class="search" id="search" placeholder="Takım veya lig ara..." value="${esc(state.search)}">
+    </section>`+
+    (!fav?filters():'')+
+    `<section class="section">
+      <div class="heading">
+        <h2>${fav?'Takip ettiklerim':'Maç merkezi'}</h2>
+        <span class="muted">Gerçek maç verileri</span>
+      </div>
+      <div id="match-list">${matchCards(fav)}</div>
+    </section>`;
+}
+
 function detail(){if(!state.match)return home();const l=leagues.find(x=>x.id===state.match.id),g=l?.games[state.match.index];if(!g)return home();const tabs=['Genel','Kadro','İstatistik','Anlatım','Puan durumu'];return `<section class="detail"><button class="back" data-go="home">‹ Geri dön</button><p class="muted" style="text-align:center">${l.flag} ${esc(l.name)} · ÖRNEK MAÇ</p><div class="versus"><div><span class="bigcrest">${esc(g[3])}</span>${esc(g[0])}</div><span class="vs">VS</span><div><span class="bigcrest">${esc(g[4])}</span>${esc(g[1])}</div></div><p class="muted" style="text-align:center">${g[2]} · Gerçek maç verisi bağlı değil</p></section><div class="section"><div class="tabs">${tabs.map(t=>`<button class="tab ${state.tab===t?'selected':''}" data-tab="${t}">${t}</button>`).join('')}</div></div>${state.tab==='Kadro'?`<div class="panel"><h3>Örnek 4-3-3 dizilişi</h3>Oyuncular temsili olarak gösterilmektedir.</div><div class="pitch">${[[9,10,11],[7,8,6],[3,4,5,2],[1]].map(row=>`<div class="pitchrow">${row.map(n=>`<div class="player"><div class="shirt">${n}</div>Oyuncu ${n}</div>`).join('')}</div>`).join('')}</div>`:`<div class="panel"><h3>${esc(state.tab)}</h3>${state.tab==='Genel'?'Maç detayları burada gösterilecek.':'Gerçek futbol verileri API bağlantısından sonra gösterilecek.'}</div>`}`;}
 function choicePage(title,body){return header()+`<section class="section"><h2>${title}</h2><div class="panel">${body}</div></section>`;}
 function staticPage(){
