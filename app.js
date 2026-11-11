@@ -112,7 +112,11 @@ loadLiveMatches();
 
 function matchCards(onlyFav=false){
   if (!liveMatches.length) {
-    return '<div class="empty">Şu anda gösterilecek gerçek maç bulunamadı.</div>';
+    
+return (state.league === 'all' ||
+        String(m.league?.id) === String(state.league)) &&
+       search.includes(state.search.toLocaleLowerCase('tr'));
+
   }
 
   const matches = liveMatches.filter(m => {
