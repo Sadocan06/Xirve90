@@ -65,7 +65,32 @@ const selectedLeague=()=>country()?.leagues.find(l=>l.id===state.favoriteLeague)
 const seasonFor=(leagueId)=>{const now=new Date();const year=now.getFullYear();const month=now.getMonth()+1;const calendarYearLeagues=new Set([71,72,128,253]);return calendarYearLeagues.has(Number(leagueId))?year:(month>=7?year:year-1);};
 function header(){return `<header class="hero"><div class="top"><div style="display:flex;align-items:center;gap:12px"><button class="iconbtn" id="menuBtn" aria-label="Menüyü aç">☰</button><div class="brand">ZİRVE<span>90</span></div></div><div class="actions"><button class="iconbtn" data-go="favorites">☆</button><button class="iconbtn" data-go="more">⚙</button></div></div></header>`;}
 function calendar(){const names=['Paz','Pzt','Sal','Çar','Per','Cum','Cmt'];return `<section class="section"><div class="heading"><h2>Maç takvimi</h2><span class="muted">Tarih seç</span></div><div class="dates">${Array.from({length:61},(_,i)=>{const offset=i-30,d=new Date();d.setDate(d.getDate()+offset);return `<button class="date ${state.day===offset?'selected':''}" data-day="${offset}"><small>${offset===0?'Bugün':names[d.getDay()]}</small><strong>${d.getDate()}</strong><small>${d.toLocaleDateString('tr-TR',{month:'short'})}</small></button>`;}).join('')}</div></section>`;}
-function filters(){return `<section class="section"><div class="heading"><h2>Ligler</h2><span class="muted">${leagues.length} demo organizasyon</span></div><div class="chips"><button class="chip ${state.league==='all'?'selected':''}" data-league="all">🌍 Tümü</button>${leagues.map(l=>`<button class="chip ${state.league===l.id?'selected':''}" data-league="${l.id}">${l.flag} ${esc(l.name)}</button>`).join('')}</div></section>`;}
+
+function filters(){
+  const realLeagues = [...new Map(
+    liveMatches
+      .filter(m => m.league?.name)
+      .map(m => [m.league.id, m.league])
+  ).values()];
+
+  return `<section class="section">
+    <div class="heading">
+      <h2>Ligler</h2>
+      <span class="muted">${realLeagues.length} organizasyon</span>
+    </div>
+    <div class="chips">
+      <button class="chip ${state.league==='all'?'selected':''}"
+        data-league="all">🌍 Tümü</button>
+      ${realLeagues.map(l=>`
+        <button class="chip ${String(state.league)===String(l.id)?'selected':''}"
+          data-league="${esc(String(l.id))}">
+          ⚽ ${esc(l.name)}
+        </button>
+      `).join('')}
+    </div>
+  </section>`;
+}
+
 
 let realMatches = [];
 
