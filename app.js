@@ -67,11 +67,25 @@ function header(){return `<header class="hero"><div class="top"><div style="disp
 function calendar(){const names=['Paz','Pzt','Sal','Çar','Per','Cum','Cmt'];return `<section class="section"><div class="heading"><h2>Maç takvimi</h2><span class="muted">Tarih seç</span></div><div class="dates">${Array.from({length:61},(_,i)=>{const offset=i-30,d=new Date();d.setDate(d.getDate()+offset);return `<button class="date ${state.day===offset?'selected':''}" data-day="${offset}"><small>${offset===0?'Bugün':names[d.getDay()]}</small><strong>${d.getDate()}</strong><small>${d.toLocaleDateString('tr-TR',{month:'short'})}</small></button>`;}).join('')}</div></section>`;}
 
 function filters(){
-  const realLeagues = [...new Map(
-    liveMatches
-      .filter(m => m.league?.name)
-      .map(m => [m.league.id, m.league])
-  ).values()];
+  
+const realLeagues = [...new Map(
+  liveMatches
+    .filter(m => m.league?.id && m.league?.name)
+    .map(m => [
+      m.league.id,
+      {
+        ...m.league,
+        countryCode: m.country?.code || ''
+      }
+    ])
+).values()].sort((a, b) => {
+  const priority = { TR: 0, DE: 1 };
+  const aRank = priority[a.countryCode] ?? 2;
+  const bRank = priority[b.countryCode] ?? 2;
+
+  return aRank - bRank ||
+    a.name.localeCompare(b.name, 'tr');
+});
 
   return `<section class="section">
     <div class="heading">
