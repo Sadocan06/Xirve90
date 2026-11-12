@@ -150,24 +150,47 @@ return (state.league === 'all' ||
         <span>⚽ ${esc(name)}</span>
         <span class="muted">${games.length} maç</span>
       </div>
-      ${games.map(m => {
-        const score = m.state?.score?.current;
-        const parts = score ? String(score).split(/\s*-\s*/) : [];
-        const time = new Date(m.date).toLocaleTimeString('tr-TR', {
-          hour:'2-digit', minute:'2-digit'
-        });
-        return `
-          <div class="match">
-            <div class="time">${time}<small>${esc(m.state?.description || '')}</small></div>
-            <div class="teams">
-              <div class="team"><span class="teamname">${esc(m.homeTeam?.name || '')}</span></div>
-              <div class="team"><span class="teamname">${esc(m.awayTeam?.name || '')}</span></div>
-            </div>
-            <div class="scores">${esc(parts[0] || '–')}<br>${esc(parts[1] || '–')}</div>
-          </div>
-        `;
-      }).join('')}
-    </article>
+     
+${games.map(m => {
+  const score = m.state?.score?.current;
+  const parts = score ? String(score).split(/\s*-\s*/) : [];
+
+  const time = new Date(m.date).toLocaleTimeString('tr-TR', {
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+
+  return `
+    <div class="match">
+      <div class="time">
+        ${time}
+        <small>${esc(m.state?.description || '')}</small>
+      </div>
+
+      <div class="teams">
+        <div class="team">
+          ${m.homeTeam?.logo
+            ? `<img class="team-logo" src="${esc(m.homeTeam.logo)}" alt="" loading="lazy">`
+            : '<span class="crest">⚽</span>'}
+          <span class="teamname">${esc(m.homeTeam?.name || '')}</span>
+        </div>
+
+        <div class="team">
+          ${m.awayTeam?.logo
+            ? `<img class="team-logo" src="${esc(m.awayTeam.logo)}" alt="" loading="lazy">`
+            : '<span class="crest">⚽</span>'}
+          <span class="teamname">${esc(m.awayTeam?.name || '')}</span>
+        </div>
+      </div>
+
+      <div class="scores">
+        ${esc(parts[0] || '–')}<br>${esc(parts[1] || '–')}
+      </div>
+    </div>
+  `;
+}).join('')}
+</article>
+
   `).join('') || '<div class="empty">Maç bulunamadı.</div>';
 }
 
