@@ -1,5 +1,4 @@
 
-'
 'use strict';
 
 /* ZIRVE90 - Premium Futbol Uygulamasi
