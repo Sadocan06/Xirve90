@@ -221,3 +221,33 @@ html, body {
 .choice {
   color: var(--text);
 }
+
+/* ZIRVE90 ZUMRUT YESILI */
+
+:root {
+  --zirve-menu: #087F5B;
+}
+
+.hero,
+.menu,
+.sidebar,
+.drawer,
+.side-menu,
+.mobile-menu {
+  background: #087F5B !important;
+}
+
+.hero .brand,
+.menuLogo {
+  color: #ffffff !important;
+}
+
+.hero .brand span,
+.menuLogo span {
+  color: #B6FF38 !important;
+}
+
+.hero .iconbtn {
+  background: #ffffff !important;
+  color: #087F5B !important;
+}
