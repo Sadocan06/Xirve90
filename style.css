@@ -251,3 +251,71 @@ html, body {
   background: #ffffff !important;
   color: #087F5B !important;
 }
+
+/* ZIRVE90 SOL MENU - ZUMRUT YESILI */
+
+.drawer,
+.sidebar,
+.side-menu,
+.mobile-menu,
+.menu-panel,
+.menuDrawer,
+.drawer-content {
+  background: #087F5B !important;
+  color: #ffffff !important;
+}
+
+.drawer a,
+.sidebar a,
+.side-menu a,
+.mobile-menu a,
+.menu-panel a,
+.menuDrawer a {
+  color: #ffffff !important;
+}
+
+.drawer .menuLogo,
+.sidebar .menuLogo,
+.menu-panel .menuLogo {
+  color: #ffffff !important;
+}
+
+.drawer .menuLogo span,
+.sidebar .menuLogo span,
+.menu-panel .menuLogo span {
+  color: #B6FF38 !important;
+}
+
+/* ZIRVE90 SOL MENU - ZUMRUT YESILI */
+
+.drawer,
+.sidebar,
+.side-menu,
+.mobile-menu,
+.menu-panel,
+.menuDrawer,
+.drawer-content {
+  background: #087F5B !important;
+  color: #ffffff !important;
+}
+
+.drawer a,
+.sidebar a,
+.side-menu a,
+.mobile-menu a,
+.menu-panel a,
+.menuDrawer a {
+  color: #ffffff !important;
+}
+
+.drawer .menuLogo,
+.sidebar .menuLogo,
+.menu-panel .menuLogo {
+  color: #ffffff !important;
+}
+
+.drawer .menuLogo span,
+.sidebar .menuLogo span,
+.menu-panel .menuLogo span {
+  color: #B6FF38 !important;
+}
