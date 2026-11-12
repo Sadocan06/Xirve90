@@ -82,3 +82,142 @@
     font-size: 12px;
   }
 }
+
+
+
+/* ZIRVE90 PREMIUM - GUNDUZ / GECE TEMASI */
+
+/* Gündüz: varsayılan */
+:root {
+  color-scheme: light;
+  --bg: #f5f8f5;
+  --surface: #ffffff;
+  --surface-alt: #eaf3ec;
+  --text: #17251c;
+  --muted: #62796a;
+  --border: #dce9df;
+  --accent: #176b43;
+  --accent-text: #ffffff;
+}
+
+/* Gece: telefonun koyu modunu takip eder */
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --bg: #090e0d;
+    --surface: #141d17;
+    --surface-alt: #1c2b21;
+    --text: #f3f8f2;
+    --muted: #91a697;
+    --border: #293c2e;
+    --accent: #b6ff38;
+    --accent-text: #14220e;
+  }
+}
+
+/* İleride manuel tema seçimi için */
+:root[data-theme="light"] {
+  color-scheme: light;
+  --bg: #f5f8f5;
+  --surface: #ffffff;
+  --surface-alt: #eaf3ec;
+  --text: #17251c;
+  --muted: #62796a;
+  --border: #dce9df;
+  --accent: #176b43;
+  --accent-text: #ffffff;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #090e0d;
+  --surface: #141d17;
+  --surface-alt: #1c2b21;
+  --text: #f3f8f2;
+  --muted: #91a697;
+  --border: #293c2e;
+  --accent: #b6ff38;
+  --accent-text: #14220e;
+}
+
+/* Temel renkler */
+html, body {
+  background: var(--bg);
+  color: var(--text);
+}
+
+.hero, .bottom {
+  background: var(--surface);
+  border-color: var(--border);
+}
+
+.brand, .menuLogo {
+  color: var(--text);
+}
+
+.brand span, .menuLogo span, .accent {
+  color: var(--accent);
+}
+
+.league, .panel, .notice {
+  background: var(--surface);
+  border-color: var(--border);
+  color: var(--text);
+}
+
+.leaguehead {
+  background: var(--surface-alt);
+  color: var(--text);
+}
+
+.match {
+  border-color: var(--border);
+}
+
+.teamname, .scores, .section h2, .panel h3 {
+  color: var(--text);
+}
+
+.muted, .time, .time small, .foot {
+  color: var(--muted);
+}
+
+.chip, .date, .tab, .iconbtn, .search {
+  background: var(--surface);
+  color: var(--text);
+  border-color: var(--border);
+}
+
+.selected,
+.chip.selected,
+.tab.selected {
+  background: var(--accent) !important;
+  color: var(--accent-text) !important;
+  border-color: var(--accent) !important;
+}
+
+.bottom button {
+  color: var(--muted);
+}
+
+.bottom button.active {
+  color: var(--accent);
+}
+
+.crest {
+  background: var(--surface-alt);
+  color: var(--accent);
+}
+
+.team-logo {
+  width: 26px !important;
+  height: 26px !important;
+  max-width: 26px;
+  max-height: 26px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.choice {
+  color: var(--text);
+}
