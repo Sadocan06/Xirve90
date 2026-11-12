@@ -865,3 +865,109 @@ try {
       'Zirve90 başlatılamadı: ' + err.message;
   }
 }
+
+/* ZIRVE90 PREMIUM TEMA SISTEMI */
+
+(function () {
+  const KEY = "zirve90-theme";
+  const valid = ["auto", "light", "dark"];
+
+  function applyTheme(mode) {
+    if (!valid.includes(mode)) mode = "auto";
+
+    if (mode === "auto") {
+      document.documentElement.removeAttribute("data-theme");
+    } else {
+      document.documentElement.setAttribute("data-theme", mode);
+    }
+
+    try {
+      localStorage.setItem(KEY, mode);
+    } catch (e) {}
+  }
+
+  function currentTheme() {
+    try {
+      const saved = localStorage.getItem(KEY);
+      return valid.includes(saved) ? saved : "auto";
+    } catch (e) {
+      return "auto";
+    }
+  }
+
+  function createThemeSettings() {
+    if (document.getElementById("zirve90-theme-settings")) {
+      return;
+    }
+
+    const panel = document.createElement("section");
+    panel.id = "zirve90-theme-settings";
+    panel.style.cssText =
+      "margin:18px 12px 100px;padding:16px;" +
+      "border:1px solid var(--border);" +
+      "border-radius:18px;background:var(--surface);" +
+      "color:var(--text)";
+
+    const heading = document.createElement("h3");
+    heading.textContent = "🎨 Görünüm Ayarları";
+    heading.style.margin = "0 0 12px";
+
+    const select = document.createElement("select");
+    select.setAttribute("aria-label", "Tema seçimi");
+    select.style.cssText =
+      "width:100%;padding:12px;border-radius:12px;" +
+      "border:1px solid var(--border);" +
+      "background:var(--surface-alt);" +
+      "color:var(--text);font-size:15px";
+
+    [
+      ["auto", "📱 Otomatik (telefon ayarı)"],
+      ["light", "☀️ Gündüz — Beyaz / Yeşil"],
+      ["dark", "🌙 Gece — Siyah / Yeşil"]
+    ].forEach(([value, label]) => {
+      const option = document.createElement("option");
+      option.value = value;
+      option.textContent = label;
+      select.appendChild(option);
+    });
+
+    select.value = currentTheme();
+
+    select.addEventListener("change", function () {
+      applyTheme(select.value);
+    });
+
+    panel.appendChild(heading);
+    panel.appendChild(select);
+
+    const app = document.getElementById("app");
+
+    if (app) {
+      app.appendChild(panel);
+    } else {
+      document.body.appendChild(panel);
+    }
+  }
+
+  applyTheme(currentTheme());
+
+  if (document.readyState === "loading") {
+    document.addEventListener(
+      "DOMContentLoaded",
+      createThemeSettings
+    );
+  } else {
+    createThemeSettings();
+  }
+
+  const observer = new MutationObserver(() => {
+    if (!document.getElementById("zirve90-theme-settings")) {
+      createThemeSettings();
+    }
+  });
+
+  observer.observe(document.body, {
+    childList: true,
+    subtree: false
+  });
+})();
