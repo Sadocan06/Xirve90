@@ -1470,3 +1470,489 @@ leaguePriority = function(m) {
   // Diger ligler
   return 70;
 };
+
+/* =========================================
+   ZIRVE90 - GERCEK PUAN DURUMU
+   LIG SECIMI + SON 5 SEZON
+   ========================================= */
+
+(function () {
+  const ST_API = "https://zirve90-api.yrdk92.workers.dev";
+
+  const stCountries = [
+    ["TR", "🇹🇷 Türkiye"],
+    ["GB", "🇬🇧 İngiltere"],
+    ["DE", "🇩🇪 Almanya"],
+    ["ES", "🇪🇸 İspanya"],
+    ["IT", "🇮🇹 İtalya"],
+    ["FR", "🇫🇷 Fransa"],
+    ["NL", "🇳🇱 Hollanda"],
+    ["PT", "🇵🇹 Portekiz"],
+    ["BE", "🇧🇪 Belçika"],
+    ["GR", "🇬🇷 Yunanistan"],
+    ["SA", "🇸🇦 Suudi Arabistan"],
+    ["US", "🇺🇸 ABD"],
+    ["BR", "🇧🇷 Brezilya"],
+    ["AR", "🇦🇷 Arjantin"]
+  ];
+
+  const currentYear = new Date().getFullYear();
+
+  const stState = {
+    country: "TR",
+    leagueId: "173537",
+    season: currentYear,
+    leagues: [],
+    rows: [],
+    groupName: "",
+    loading: false,
+    error: "",
+    token: 0
+  };
+
+  function stEscape(value) {
+    return String(value ?? "").replace(
+      /[&<>"']/g,
+      c => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+      })[c]
+    );
+  }
+
+  function stNumber(value) {
+    return Number(value || 0);
+  }
+
+  function stStandingsRows(data) {
+    const groups = Array.isArray(data.groups)
+      ? data.groups
+      : [];
+
+    const result = [];
+
+    for (const group of groups) {
+      let standings = group.standings || [];
+
+      if (!Array.isArray(standings)) {
+        standings = Object.values(standings);
+      }
+
+      for (const item of standings) {
+        if (item && item.team) {
+          result.push({
+            ...item,
+            groupName: group.name || ""
+          });
+        }
+      }
+    }
+
+    return result.sort(
+      (a, b) =>
+        stNumber(a.position) - stNumber(b.position)
+    );
+  }
+
+  function stTable() {
+    if (stState.loading) {
+      return '<div class="empty">Puan durumu yükleniyor...</div>';
+    }
+
+    if (stState.error) {
+      return `
+        <div class="empty">
+          ${stEscape(stState.error)}
+          <button class="chip" data-st-retry="1">
+            Yeniden dene
+          </button>
+        </div>
+      `;
+    }
+
+    if (!stState.rows.length) {
+      return `
+        <div class="empty">
+          Bu sezon için puan durumu bulunamadı.
+        </div>
+      `;
+    }
+
+    const groups = new Map();
+
+    for (const item of stState.rows) {
+      const name = item.groupName || "Puan Durumu";
+
+      if (!groups.has(name)) groups.set(name, []);
+      groups.get(name).push(item);
+    }
+
+    return [...groups.entries()].map(([name, rows]) => `
+      <article class="league st-league">
+        <div class="leaguehead">
+          <span>🏆 ${stEscape(name)}</span>
+          <span>${rows.length} takım</span>
+        </div>
+
+        <div class="st-scroll">
+          <table class="st-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Takım</th>
+                <th>O</th>
+                <th>G</th>
+                <th>B</th>
+                <th>M</th>
+                <th>AV</th>
+                <th>P</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rows.map(item => {
+                const t = item.total || {};
+                const goalsFor = stNumber(t.scoredGoals);
+                const goalsAgainst = stNumber(t.receivedGoals);
+                const average = goalsFor - goalsAgainst;
+
+                const logo = item.team?.logo || "";
+                const safeLogo = /^https:\/\//.test(logo)
+                  ? `<img src="${stEscape(logo)}"
+                          alt="" loading="lazy">`
+                  : "";
+
+                return `
+                  <tr>
+                    <td>${stEscape(item.position)}</td>
+                    <td class="st-team">
+                      ${safeLogo}
+                      <span>${stEscape(item.team?.name)}</span>
+                    </td>
+                    <td>${stNumber(t.games)}</td>
+                    <td>${stNumber(t.wins)}</td>
+                    <td>${stNumber(t.draws)}</td>
+                    <td>${stNumber(t.loses)}</td>
+                    <td>${average > 0 ? "+" : ""}${average}</td>
+                    <td class="st-points">
+                      ${stNumber(item.points)}
+                    </td>
+                  </tr>
+                `;
+              }).join("")}
+            </tbody>
+          </table>
+        </div>
+      </article>
+    `).join("");
+  }
+
+  function stPage() {
+    const seasons = Array.from(
+      { length: 5 },
+      (_, i) => currentYear - i
+    );
+
+    return header() + `
+      <section class="section">
+        <div class="heading">
+          <h2>🏆 Puan Durumu</h2>
+          <span class="muted">Son 5 sezon</span>
+        </div>
+
+        <div class="st-controls">
+          <label>
+            Ülke
+            <select id="st-country">
+              ${stCountries.map(([code, name]) => `
+                <option value="${code}"
+                  ${stState.country === code ? "selected" : ""}>
+                  ${name}
+                </option>
+              `).join("")}
+            </select>
+          </label>
+
+          <label>
+            Lig
+            <select id="st-league">
+              ${stState.leagues.length
+                ? stState.leagues.map(l => `
+                    <option value="${stEscape(l.id)}"
+                      ${String(l.id) === String(stState.leagueId)
+                        ? "selected" : ""}>
+                      ${stEscape(l.name)}
+                    </option>
+                  `).join("")
+                : `<option value="${stEscape(stState.leagueId)}">
+                     Ligler yükleniyor...
+                   </option>`}
+            </select>
+          </label>
+
+          <label>
+            Sezon
+            <select id="st-season">
+              ${seasons.map(year => `
+                <option value="${year}"
+                  ${stState.season === year ? "selected" : ""}>
+                  ${year}/${String(year + 1).slice(-2)}
+                </option>
+              `).join("")}
+            </select>
+          </label>
+        </div>
+      </section>
+
+      <section class="section">
+        <div id="st-results">
+          ${stTable()}
+        </div>
+      </section>
+    `;
+  }
+
+  const previousStaticPage = staticPage;
+
+  staticPage = function () {
+    if (state.page === "standings") {
+      return stPage();
+    }
+    return previousStaticPage();
+  };
+
+  function stRefresh() {
+    if (state.page !== "standings") return;
+    render();
+  }
+
+  async function stLoadLeagues() {
+    const token = ++stState.token;
+
+    stState.loading = true;
+    stState.error = "";
+    stState.rows = [];
+    stState.leagues = [];
+    stRefresh();
+
+    try {
+      const response = await fetch(
+        ST_API + "/leagues?countryCode=" +
+        encodeURIComponent(stState.country)
+      );
+
+      if (!response.ok) {
+        throw new Error("Ligler alınamadı");
+      }
+
+      const data = await response.json();
+
+      if (token !== stState.token) return;
+
+      stState.leagues = (data.data || [])
+        .filter(l => {
+          const n = String(l.name || "").toLowerCase();
+          return !/women|u19|u20|u21|youth/.test(n);
+        })
+        .sort((a, b) => {
+          const rank = n => {
+            const s = String(n || "").toLowerCase();
+
+            if (/süper lig|super lig|premier league|^bundesliga$|la liga|serie a|ligue 1|eredivisie/.test(s))
+              return 0;
+
+            if (/^1\. lig$|2\. bundesliga|championship|primeira liga/.test(s))
+              return 1;
+
+            return 10;
+          };
+
+          return rank(a.name) - rank(b.name) ||
+            a.name.localeCompare(b.name, "tr");
+        });
+
+      if (!stState.leagues.some(
+        l => String(l.id) === String(stState.leagueId)
+      )) {
+        stState.leagueId = String(
+          stState.leagues[0]?.id || ""
+        );
+      }
+
+      stRefresh();
+      await stLoadStandings();
+    } catch (error) {
+      if (token !== stState.token) return;
+      stState.loading = false;
+      stState.error = error.message;
+      stRefresh();
+    }
+  }
+
+  async function stLoadStandings() {
+    const token = ++stState.token;
+
+    if (!stState.leagueId) {
+      stState.loading = false;
+      stState.error = "Bu ülke için lig bulunamadı.";
+      stRefresh();
+      return;
+    }
+
+    stState.loading = true;
+    stState.error = "";
+    stState.rows = [];
+    stRefresh();
+
+    try {
+      const url =
+        ST_API + "/standings?leagueId=" +
+        encodeURIComponent(stState.leagueId) +
+        "&season=" +
+        encodeURIComponent(stState.season);
+
+      const response = await fetch(url);
+
+      if (!response.ok) {
+        throw new Error(
+          "Puan durumu alınamadı (HTTP " +
+          response.status + ")"
+        );
+      }
+
+      const data = await response.json();
+
+      if (token !== stState.token) return;
+
+      stState.rows = stStandingsRows(data);
+      stState.loading = false;
+      stRefresh();
+    } catch (error) {
+      if (token !== stState.token) return;
+
+      stState.loading = false;
+      stState.error = error.message;
+      stRefresh();
+    }
+  }
+
+  const previousGo = go;
+
+  go = function (page) {
+    previousGo(page);
+
+    if (page === "standings") {
+      if (!stState.leagues.length) {
+        stLoadLeagues();
+      } else if (!stState.rows.length) {
+        stLoadStandings();
+      }
+    }
+  };
+
+  document.addEventListener("change", event => {
+    if (event.target.id === "st-country") {
+      stState.country = event.target.value;
+      stState.leagueId = "";
+      stLoadLeagues();
+    }
+
+    if (event.target.id === "st-league") {
+      stState.leagueId = event.target.value;
+      stLoadStandings();
+    }
+
+    if (event.target.id === "st-season") {
+      stState.season = Number(event.target.value);
+      stLoadStandings();
+    }
+  });
+
+  document.addEventListener("click", event => {
+    if (event.target.closest("[data-st-retry]")) {
+      stLoadStandings();
+    }
+  });
+
+  const style = document.createElement("style");
+
+  style.textContent = `
+    .st-controls {
+      display: grid;
+      gap: 10px;
+    }
+
+    .st-controls label {
+      display: grid;
+      gap: 5px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .st-controls select {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #d8e0dc;
+      border-radius: 10px;
+      background: white;
+      color: #17231d;
+      font-size: 14px;
+    }
+
+    .st-scroll {
+      overflow-x: auto;
+      width: 100%;
+    }
+
+    .st-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11px;
+      white-space: nowrap;
+    }
+
+    .st-table th {
+      padding: 11px 5px;
+      background: #f1f5f3;
+      color: #56645d;
+      text-align: center;
+    }
+
+    .st-table th:nth-child(2) {
+      text-align: left;
+    }
+
+    .st-table td {
+      padding: 10px 5px;
+      border-bottom: 1px solid #edf0ee;
+      text-align: center;
+    }
+
+    .st-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .st-table .st-team {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      text-align: left;
+      min-width: 125px;
+    }
+
+    .st-team img {
+      width: 19px;
+      height: 19px;
+      object-fit: contain;
+    }
+
+    .st-points {
+      font-weight: 800;
+      color: #07864b;
+    }
+  `;
+
+  document.head.appendChild(style);
+})();
