@@ -1,10 +1,9 @@
 
 'use strict';
 
-// ZIRVE90 - Cloudflare Worker
-// Highlightly Football API
-// API anahtari Cloudflare Secret:
-// HIGHLIGHTLY_API_KEY
+// ZIRVE90 Cloudflare Worker
+// Highlightly API
+// Gizli anahtar: HIGHLIGHTLY_API_KEY
 
 const API_URL = 'https://soccer.highlightly.net';
 const PAGE_SIZE = 100;
@@ -24,22 +23,22 @@ const TTL = {
 };
 
 const priorityCountries = [
-  'TR', 'DE', 'GB', 'ES', 'IT', 'FR',
-  'NL', 'PT', 'BE', 'AT', 'CH', 'GR',
-  'SA', 'US', 'BR', 'AR'
+  'TR','DE','GB','ES','IT','FR',
+  'NL','PT','BE','AT','CH','GR',
+  'SA','US','BR','AR'
 ];
 
 const excludedTerms = [
-  'women', 'woman', 'female', 'feminine',
-  'femenino', 'feminina', 'femminile',
-  'frauen', 'kadin', 'kadın',
-  'u17', 'u18', 'u19', 'u20', 'u21', 'u23',
-  'under 17', 'under 19', 'under 20',
-  'under 21', 'youth', 'reserve',
-  'reserves', 'primavera', 'academy'
+  'women','woman','female','feminine',
+  'femenino','feminina','femminile',
+  'frauen','kadin','kadın',
+  'u17','u18','u19','u20','u21','u23',
+  'under 17','under 19','under 20',
+  'under 21','youth','reserve',
+  'reserves','primavera','academy'
 ];
 
-function json(data, status = 200, extra = {}) {
+function json(data, status = 200, headers = {}) {
   return new Response(JSON.stringify(data), {
     status,
     headers: {
@@ -48,90 +47,78 @@ function json(data, status = 200, extra = {}) {
       'Access-Control-Allow-Methods': 'GET, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type',
       'X-Content-Type-Options': 'nosniff',
-      ...extra
+      ...headers
     }
   });
 }
 
-function validId(value) {
-  return /^\d+$/.test(String(value ?? '')) &&
-    Number(value) > 0 &&
-    Number.isSafeInteger(Number(value));
+function validId(v) {
+  return /^\d+$/.test(String(v ?? '')) &&
+    Number(v) > 0 &&
+    Number.isSafeInteger(Number(v));
 }
 
-function validSeason(value) {
-  return /^\d{4}$/.test(String(value ?? '')) &&
-    Number(value) >= 2000 &&
-    Number(value) <= new Date().getUTCFullYear() + 1;
+function validSeason(v) {
+  return /^\d{4}$/.test(String(v ?? '')) &&
+    Number(v) >= 2000 &&
+    Number(v) <= new Date().getUTCFullYear() + 1;
 }
 
-function validDate(value) {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(value ?? ''))) {
+function validDate(v) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(v ?? ''))) {
     return false;
   }
 
-  const date = new Date(value + 'T00:00:00Z');
+  const d = new Date(v + 'T00:00:00Z');
 
-  return !Number.isNaN(date.getTime()) &&
-    date.toISOString().slice(0, 10) === value;
+  return !Number.isNaN(d.getTime()) &&
+    d.toISOString().slice(0, 10) === v;
 }
 
-function isExcluded(match) {
+function excluded(m) {
   const text = [
-    match.league?.name,
-    match.homeTeam?.name,
-    match.awayTeam?.name
+    m.league?.name,
+    m.homeTeam?.name,
+    m.awayTeam?.name
   ].filter(Boolean).join(' ').toLocaleLowerCase('tr');
 
   return excludedTerms.some(term => {
     if (/^u\d+$/.test(term)) {
-      return new RegExp(
-        '\\b' + term + '\\b', 'i'
-      ).test(text);
+      return new RegExp('\\b' + term + '\\b', 'i')
+        .test(text);
     }
-
     return text.includes(term);
   });
 }
 
-function priority(match) {
+function priority(m) {
   const country = String(
-    match.country?.code || ''
+    m.country?.code ||
+    m.league?.country?.code ||
+    ''
   ).toUpperCase();
 
-  const league = String(
-    match.league?.name || ''
-  ).toLowerCase();
+  const name = String(m.league?.name || '')
+    .toLowerCase();
 
-  if (country === 'TR') {
-    if (/süper lig|super lig/i.test(league)) {
-      return 0;
-    }
+  if (
+    country === 'TR' &&
+    /süper lig|super lig/i.test(name)
+  ) return 0;
 
-    if (/1\. lig|first league/i.test(league)) {
-      return 1;
-    }
+  if (
+    country === 'TR' &&
+    /1\. lig|first league/i.test(name)
+  ) return 1;
 
-    return 10;
-  }
+  if (
+    country === 'DE' &&
+    name === 'bundesliga'
+  ) return 2;
 
-  if (country === 'DE') {
-    if (league === 'bundesliga') {
-      return 2;
-    }
+  const index = priorityCountries.indexOf(country);
 
-    if (/2\. bundesliga/i.test(league)) {
-      return 12;
-    }
-
-    return 20;
-  }
-
-  const position = priorityCountries.indexOf(country);
-
-  return position === -1
-    ? 100
-    : position + 20;
+  return index < 0 ? 100 : index + 20;
 }
 
 function sortMatches(matches) {
@@ -146,8 +133,7 @@ function sortMatches(matches) {
       String(b.league?.name || '')
     ) ||
 
-    new Date(a.date).getTime() -
-    new Date(b.date).getTime()
+    new Date(a.date) - new Date(b.date)
   );
 }
 
@@ -181,6 +167,30 @@ async function apiGet(path, params, key) {
   return response.json();
 }
 
+async function cached(name, seconds, ctx, loader) {
+  const cache = caches.default;
+
+  const key = new Request(
+    'https://zirve90-cache.internal/v3/' + name
+  );
+
+  const hit = await cache.match(key);
+
+  if (hit) return hit;
+
+  const result = await loader();
+
+  const response = json(result, 200, {
+    'Cache-Control': 'public, max-age=' + seconds
+  });
+
+  ctx.waitUntil(
+    cache.put(key, response.clone())
+  );
+
+  return response;
+}
+
 async function getMatches(date, key) {
   const first = await apiGet('/matches', {
     date,
@@ -196,7 +206,7 @@ async function getMatches(date, key) {
     first.pagination?.totalCount ?? all.length
   );
 
-  const pageCount = Math.max(
+  const pages = Math.max(
     1,
     Math.min(
       MAX_PAGES,
@@ -204,16 +214,12 @@ async function getMatches(date, key) {
     )
   );
 
-  for (let start = 1; start < pageCount; start += 3) {
-    const count = Math.min(
-      3,
-      pageCount - start
-    );
+  for (let start = 1; start < pages; start += 3) {
+    const count = Math.min(3, pages - start);
 
-    const pages = await Promise.all(
-      Array.from(
-        { length: count },
-        (_, i) => apiGet('/matches', {
+    const batch = await Promise.all(
+      Array.from({length: count}, (_, i) =>
+        apiGet('/matches', {
           date,
           limit: PAGE_SIZE,
           offset: (start + i) * PAGE_SIZE
@@ -221,7 +227,7 @@ async function getMatches(date, key) {
       )
     );
 
-    for (const page of pages) {
+    for (const page of batch) {
       if (Array.isArray(page.data)) {
         all.push(...page.data);
       }
@@ -238,77 +244,61 @@ async function getMatches(date, key) {
 
   const filtered = sortMatches(
     [...unique.values()].filter(
-      m => !isExcluded(m)
+      match => !excluded(match)
     )
   );
 
   return {
     data: filtered,
-
     pagination: {
       totalCount: filtered.length,
       offset: 0,
       limit: filtered.length
     },
-
     plan: first.plan || null,
-
     meta: {
       originalTotal: total,
       received: unique.size,
       shown: filtered.length,
-      pagesFetched: pageCount,
+      pagesFetched: pages,
       cacheSeconds: TTL.matches
     }
   };
 }
 
-async function cachedApi(
-  cacheName,
-  seconds,
-  ctx,
-  loader
-) {
-  const cache = caches.default;
+function errorResponse(error) {
+  const status = error instanceof UpstreamError
+    ? error.status
+    : 0;
 
-  const cacheKey = new Request(
-    'https://zirve90-cache.internal/v2/' +
-    cacheName
+  return json({
+    error:
+      status === 429
+        ? 'API istek limiti doldu'
+        : status === 404
+          ? 'Bu veri API üzerinde bulunamadı'
+          : status === 403
+            ? 'API planı bu veriye erişemiyor'
+            : 'API verileri alınamadı',
+
+    detail: status
+      ? 'Highlightly HTTP ' + status
+      : 'Bağlantı hatası'
+  }, status === 429
+    ? 429
+    : status === 404
+      ? 404
+      : status === 403
+        ? 403
+        : 502
   );
-
-  const cached = await cache.match(cacheKey);
-
-  if (cached) {
-    return cached;
-  }
-
-  const data = await loader();
-
-  const response = json(data, 200, {
-    'Cache-Control':
-      'public, max-age=' + seconds
-  });
-
-  ctx.waitUntil(
-    cache.put(cacheKey, response.clone())
-  );
-
-  return response;
-}
-
-function idFrom(url, paramName, fallback = 'id') {
-  return url.searchParams.get(paramName) ||
-    url.searchParams.get(fallback) ||
-    '';
 }
 
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
 
-    const path = url.pathname.replace(
-      /\/$/, ''
-    ) || '/';
+    const path = url.pathname.replace(/\/$/, '') || '/';
 
     if (request.method === 'OPTIONS') {
       return json({});
@@ -346,20 +336,20 @@ export default {
 
     if (!endpoints.includes(path)) {
       return json({
-        error: 'Sayfa bulunamadi'
+        error: 'Sayfa bulunamadı'
       }, 404);
     }
 
     if (!env.HIGHLIGHTLY_API_KEY) {
       return json({
-        error: 'API anahtari eksik'
+        error: 'API anahtarı eksik'
       }, 500);
     }
 
     const key = env.HIGHLIGHTLY_API_KEY;
 
     try {
-      // MAC LISTESI
+      // MAÇ LİSTESİ
 
       if (path === '/matches') {
         const date =
@@ -368,11 +358,11 @@ export default {
 
         if (!validDate(date)) {
           return json({
-            error: 'Gecersiz tarih. YYYY-MM-DD olmali'
+            error: 'Geçersiz tarih'
           }, 400);
         }
 
-        return cachedApi(
+        return cached(
           'matches?date=' + date,
           TTL.matches,
           ctx,
@@ -380,7 +370,7 @@ export default {
         );
       }
 
-      // MAC DETAYI, KADRO, ISTATISTIK, OLAYLAR
+      // MAÇ DETAYLARI
 
       if ([
         '/match',
@@ -388,45 +378,47 @@ export default {
         '/statistics',
         '/events'
       ].includes(path)) {
-        const id = idFrom(url, 'matchId');
+        const id =
+          url.searchParams.get('matchId') ||
+          url.searchParams.get('id') ||
+          '';
 
         if (!validId(id)) {
           return json({
-            error: 'Gecerli matchId gerekli'
+            error: 'Geçerli matchId gerekli'
           }, 400);
         }
 
-        const spec = {
+        const specs = {
           '/match': [
             '/matches/' + id,
             TTL.match
           ],
-
           '/lineups': [
             '/lineups/' + id,
             TTL.lineups
           ],
-
           '/statistics': [
             '/statistics/' + id,
             TTL.statistics
           ],
-
           '/events': [
             '/events/' + id,
             TTL.events
           ]
-        }[path];
+        };
 
-        return cachedApi(
+        const [apiPath, ttl] = specs[path];
+
+        return cached(
           path.slice(1) + '?id=' + id,
-          spec[1],
+          ttl,
           ctx,
-          () => apiGet(spec[0], {}, key)
+          () => apiGet(apiPath, {}, key)
         );
       }
 
-      // LIGLER
+      // LİGLER
 
       if (path === '/leagues') {
         const leagueName = (
@@ -442,7 +434,7 @@ export default {
 
         if (!leagueName && !countryCode) {
           return json({
-            error: 'Lig adi veya ulke kodu gerekli'
+            error: 'Lig adı veya ülke kodu gerekli'
           }, 400);
         }
 
@@ -454,13 +446,13 @@ export default {
           )
         ) {
           return json({
-            error: 'Gecersiz lig veya ulke'
+            error: 'Geçersiz lig veya ülke'
           }, 400);
         }
 
         if (season && !validSeason(season)) {
           return json({
-            error: 'Gecersiz sezon'
+            error: 'Geçersiz sezon'
           }, 400);
         }
 
@@ -481,19 +473,13 @@ export default {
           params.season = season;
         }
 
-        const qs = new URLSearchParams(
-          params
-        ).toString();
+        const qs = new URLSearchParams(params).toString();
 
-        return cachedApi(
+        return cached(
           'leagues?' + qs,
           TTL.leagues,
           ctx,
-          () => apiGet(
-            '/leagues',
-            params,
-            key
-          )
+          () => apiGet('/leagues', params, key)
         );
       }
 
@@ -511,12 +497,11 @@ export default {
           !validSeason(season)
         ) {
           return json({
-            error:
-              'Gecerli leagueId ve season gerekli'
+            error: 'Geçerli leagueId ve season gerekli'
           }, 400);
         }
 
-        return cachedApi(
+        return cached(
           'standings?leagueId=' +
             leagueId +
             '&season=' +
@@ -525,7 +510,7 @@ export default {
           ctx,
           () => apiGet(
             '/standings',
-            { leagueId, season },
+            {leagueId, season},
             key
           )
         );
@@ -543,16 +528,13 @@ export default {
 
         if (!validId(leagueId)) {
           return json({
-            error: 'Gecerli leagueId gerekli'
+            error: 'Geçerli leagueId gerekli'
           }, 400);
         }
 
-        if (
-          season &&
-          !validSeason(season)
-        ) {
+        if (season && !validSeason(season)) {
           return json({
-            error: 'Gecersiz sezon'
+            error: 'Geçersiz sezon'
           }, 400);
         }
 
@@ -566,33 +548,28 @@ export default {
           params.season = season;
         }
 
-        return cachedApi(
-          'teams?' +
-            new URLSearchParams(params),
+        return cached(
+          'teams?' + new URLSearchParams(params),
           TTL.teams,
           ctx,
-          () => apiGet(
-            '/teams',
-            params,
-            key
-          )
+          () => apiGet('/teams', params, key)
         );
       }
 
-      // OYUNCU PROFILI VE ISTATISTIKLERI
+      // OYUNCU PROFİLİ VE İSTATİSTİKLER
 
       if (
         path === '/player' ||
         path === '/player-statistics'
       ) {
-        const playerId = idFrom(
-          url,
-          'playerId'
-        );
+        const playerId =
+          url.searchParams.get('playerId') ||
+          url.searchParams.get('id') ||
+          '';
 
         if (!validId(playerId)) {
           return json({
-            error: 'Gecerli playerId gerekli'
+            error: 'Geçerli playerId gerekli'
           }, 400);
         }
 
@@ -604,43 +581,20 @@ export default {
           playerId +
           (isStats ? '/statistics' : '');
 
-        const ttl = isStats
-          ? TTL.playerStats
-          : TTL.player;
-
-        return cachedApi(
-          path.slice(1) +
-            '?id=' +
-            playerId,
-          ttl,
+        return cached(
+          path.slice(1) + '?id=' + playerId,
+          isStats ? TTL.playerStats : TTL.player,
           ctx,
-          () => apiGet(
-            apiPath,
-            {},
-            key
-          )
+          () => apiGet(apiPath, {}, key)
         );
       }
 
       return json({
-        error: 'Sayfa bulunamadi'
+        error: 'Sayfa bulunamadı'
       }, 404);
 
     } catch (error) {
-      const status =
-        error instanceof UpstreamError
-          ? error.status
-          : 0;
-
-      return json({
-        error: status === 429
-          ? 'API gunluk istek limiti dolmus olabilir'
-          : 'API verileri alinamadi',
-
-        detail: status
-          ? 'Highlightly HTTP ' + status
-          : 'Baglanti hatasi'
-      }, status === 429 ? 429 : 502);
+      return errorResponse(error);
     }
   }
 };
