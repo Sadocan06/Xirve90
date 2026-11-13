@@ -1344,3 +1344,129 @@ setInterval(() => {
 
   document.head.appendChild(style);
 })();
+
+/* ZIRVE90 - LIG ONCELIK SIRALAMASI */
+
+leaguePriority = function(m) {
+  const name = String(m.league?.name || '')
+    .toLocaleLowerCase('tr-TR');
+
+  const country = String(getCountryName(m) || '')
+    .toLocaleLowerCase('tr-TR');
+
+  const code = getCountryCode(m);
+
+  // Kadin ve altyapi ligleri
+  if (women(name)) return 900;
+  if (youth(name)) return 910;
+
+  // Turkiye Super Lig
+  if (
+    (code === 'TR' || country === 'türkiye') &&
+    /süper lig|super lig/.test(name)
+  ) return 1;
+
+  // Dunya Kupasi
+  if (/world cup|dünya kupası/.test(name)) return 2;
+
+  // Avrupa Sampiyonasi
+  if (/uefa euro|european championship/.test(name))
+    return 3;
+
+  // UEFA Sampiyonlar Ligi
+  if (
+    /champions league|şampiyonlar ligi/.test(name) &&
+    /uefa|europe/.test(name)
+  ) return 4;
+
+  // UEFA Avrupa Ligi
+  if (/europa league|avrupa ligi/.test(name))
+    return 5;
+
+  // UEFA Konferans Ligi
+  if (/conference league|konferans ligi/.test(name))
+    return 6;
+
+  // Ingiltere Premier League
+  if (
+    (code === 'GB' || code === 'EN' ||
+     country.includes('ngiltere')) &&
+    /premier league/.test(name)
+  ) return 10;
+
+  // Almanya Bundesliga
+  if (
+    (code === 'DE' || country === 'almanya') &&
+    /^bundesliga$/.test(name)
+  ) return 11;
+
+  // Ispanya LaLiga
+  if (
+    (code === 'ES' || country.includes('spanya')) &&
+    /la liga|laliga|primera divisi/.test(name)
+  ) return 12;
+
+  // Italya Serie A
+  if (
+    (code === 'IT' || country.includes('talya')) &&
+    /^serie a$/.test(name)
+  ) return 13;
+
+  // Fransa Ligue 1
+  if (
+    (code === 'FR' || country === 'fransa') &&
+    /^ligue 1$/.test(name)
+  ) return 14;
+
+  // Turkiye 1. Lig
+  if (
+    (code === 'TR' || country === 'türkiye') &&
+    /1\. lig|tff 1|first league/.test(name)
+  ) return 15;
+
+  // Hollanda
+  if (code === 'NL' && /eredivisie/.test(name))
+    return 16;
+
+  // Portekiz
+  if (code === 'PT' && /primeira liga/.test(name))
+    return 17;
+
+  // Belcika
+  if (code === 'BE' && /pro league/.test(name))
+    return 18;
+
+  // Almanya 2. Bundesliga
+  if (code === 'DE' && /2\. bundesliga/.test(name))
+    return 19;
+
+  // Turkiye Kupasi
+  if (code === 'TR' && /cup|kupa/.test(name))
+    return 25;
+
+  // UEFA Uluslar Ligi
+  if (
+    /nations league/.test(name) &&
+    /uefa|europe/.test(name)
+  ) return 26;
+
+  // Diger onemli ligler
+  if (
+    /premier league|super league|serie a|liga 1|primera division|bundesliga|division 1/i.test(name)
+  ) return 40;
+
+  // AFC ve Asya Sampiyonlar Ligi
+  if (/afc|asian champions|asia champions/.test(name))
+    return 80;
+
+  // UEFA disindaki Sampiyonlar Ligleri
+  if (/champions league|şampiyonlar ligi/.test(name))
+    return 85;
+
+  // Diger kupalar
+  if (/cup|copa|pokal|kupa/.test(name))
+    return 60;
+
+  // Diger ligler
+  return 70;
+};
